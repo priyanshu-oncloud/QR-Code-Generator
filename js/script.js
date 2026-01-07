@@ -1,108 +1,128 @@
-document.addEventListener('DOMContentLoaded', () => {
-    // --- DOM Elements ---
-    const textInput = document.getElementById('qr-text');
-    const qrCodeContainer = document.getElementById('qr-code-container');
-    const downloadBtn = document.getElementById('download-btn');
-    const colorDarkInput = document.getElementById('color-dark');
-    const colorLightInput = document.getElementById('color-light');
-    const dotStyleSelect = document.getElementById('dot-style');
-    const expirationDateInput = document.getElementById('expiration-date');
-    const passwordInput = document.getElementById('qr-password');
-    const typeButtons = document.querySelectorAll('.type-btn');
-    const textInputSection = document.getElementById('text-input-section');
-    const vcardInputSection = document.getElementById('vcard-input-section');
-    const vcardInputs = document.querySelectorAll('.vcard-input');
+document.addEventListener("DOMContentLoaded", () => {
+    // ---------- DOM ELEMENTS ----------
+    const textInput = document.getElementById("qr-text");
+    const qrCodeContainer = document.getElementById("qr-code-container");
+    const downloadBtn = document.getElementById("download-btn");
 
-    // --- State ---
-    let currentQrType = 'text'; // 'text' or 'vcard'
+    const colorDarkInput = document.getElementById("color-dark");
+    const colorLightInput = document.getElementById("color-light");
+    const dotStyleSelect = document.getElementById("dot-style");
 
-    // --- QR Code Instance ---
+    const expirationDateInput = document.getElementById("expiration-date");
+    const passwordInput = document.getElementById("qr-password");
+
+    const typeButtons = document.querySelectorAll(".type-btn");
+    const textInputSection = document.getElementById("text-input-section");
+    const vcardInputSection = document.getElementById("vcard-input-section");
+    const vcardInputs = document.querySelectorAll(".vcard-input");
+
+    // ---------- STATE ----------
+    let currentQrType = "text"; // text | vcard
+
+    // ---------- QR INSTANCE ----------
     const qrCode = new QRCodeStyling({
-        width: 200,
-        height: 200,
-        type: 'svg',
-        data: 'https://www.google.com/',
-        image: '', // Placeholder for logo
+        width: 220,
+        height: 220,
+        type: "svg",
+        data: "https://www.google.com/",
         dotsOptions: {
             color: colorDarkInput.value,
             type: dotStyleSelect.value
         },
         backgroundOptions: {
-            color: colorLightInput.value,
+            color: colorLightInput.value
         },
         imageOptions: {
-            crossOrigin: 'anonymous',
+            crossOrigin: "anonymous",
             margin: 10
         },
         qrOptions: {
-            errorCorrectionLevel: 'H' // High correction for logos
+            errorCorrectionLevel: "H"
         }
     });
 
-    // Append the QR code to the container
     qrCode.append(qrCodeContainer);
 
-    // --- Event Listeners ---
-    textInput.addEventListener('input', updateQRCode);
-    colorDarkInput.addEventListener('input', updateQRCode);
-    colorLightInput.addEventListener('input', updateQRCode);
-    dotStyleSelect.addEventListener('change', updateQRCode);
-    vcardInputs.forEach(input => input.addEventListener('input', updateQRCode));
+    // ---------- EVENTS ----------
+    textInput.addEventListener("input", updateQRCode);
+    colorDarkInput.addEventListener("input", updateQRCode);
+    colorLightInput.addEventListener("input", updateQRCode);
+    dotStyleSelect.addEventListener("change", updateQRCode);
+    vcardInputs.forEach(input => input.addEventListener("input", updateQRCode));
 
-    typeButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            // Update active button style
-            typeButtons.forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
+    typeButtons.forEach(btn => {
+        btn.addEventListener("click", () => {
+            typeButtons.forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
 
-            // Update state and UI
-            currentQrType = button.dataset.type;
-            if (currentQrType === 'text') {
-                textInputSection.classList.remove('hidden');
-                vcardInputSection.classList.add('hidden');
+            currentQrType = btn.dataset.type;
+
+            if (currentQrType === "text") {
+                textInputSection.classList.remove("hidden");
+                vcardInputSection.classList.add("hidden");
             } else {
-                textInputSection.classList.add('hidden');
-                vcardInputSection.classList.remove('hidden');
+                textInputSection.classList.add("hidden");
+                vcardInputSection.classList.remove("hidden");
             }
-            updateQRCode(); // Regenerate QR on type switch
+
+            updateQRCode();
         });
     });
 
-    expirationDateInput.addEventListener('change', () => {
-        const expirationDate = expirationDateInput.value;
-        if (expirationDate) {
-            // SIMULATION: In a real application, this is where you would
-            // make an API call to a backend service. The backend would generate
-            // a short URL that redirects to the user's textInput.value,
-            // and it would store the expirationDate in a database.
-            // The QR code would then be generated for that short URL.
-
+    expirationDateInput.addEventListener("change", () => {
+        if (expirationDateInput.value) {
             alert(
-`--- Dynamic QR Code Simulation ---
+`Dynamic QR Simulation
 
-This QR code would now be a 'Dynamic QR Code'.
+This feature requires backend support.
 
-1. A unique, trackable link would be created on a server.
-2. This link would be set to expire on: ${new Date(expirationDate).toLocaleDateString()}.
-3. After this date, scanning the QR code would lead to an 'Expired' page.
-
-To fully implement this, a backend server and database are required.`
+• QR would redirect via server
+• Expiry Date: ${new Date(expirationDateInput.value).toDateString()}
+• After expiry → QR becomes invalid`
             );
         }
     });
 
-    downloadBtn.addEventListener('click', (e) => {
+    downloadBtn.addEventListener("click", e => {
         e.preventDefault();
-        qrCode.download({ name: 'qrcode', extension: 'png' });
+        qrCode.download({ name: "qr-code", extension: "png" });
     });
 
-    // --- Core Function ---
+    // ---------- FUNCTIONS ----------
+
+    function generateVCardData() {
+        let vcard = `BEGIN:VCARD
+VERSION:3.0`;
+
+        vcardInputs.forEach(input => {
+            if (input.value.trim()) {
+                const field = input.dataset.field;
+                vcard += `\n${field}:${input.value.trim()}`;
+            }
+        });
+
+        vcard += `\nEND:VCARD`;
+        return vcard;
+    }
+
     function updateQRCode() {
-        const data = textInput.value.trim() || 'https://www.google.com/';
-        downloadBtn.style.visibility = textInput.value.trim() ? 'visible' : 'hidden';
+        let data = "";
+
+        if (currentQrType === "text") {
+            data = textInput.value.trim();
+        } else {
+            data = generateVCardData();
+        }
+
+        if (!data) {
+            data = "https://www.google.com/";
+            downloadBtn.style.visibility = "hidden";
+        } else {
+            downloadBtn.style.visibility = "visible";
+        }
 
         qrCode.update({
-            data: data,
+            data,
             dotsOptions: {
                 color: colorDarkInput.value,
                 type: dotStyleSelect.value
@@ -113,6 +133,6 @@ To fully implement this, a backend server and database are required.`
         });
     }
 
-    // Initial call to hide download button if input is empty
+    // Initial load
     updateQRCode();
 });
