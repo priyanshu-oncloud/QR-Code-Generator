@@ -1,76 +1,76 @@
-document.addEventListener('DOMContentLoaded', () => {
-    // --- DOM Elements ---
-    const textInput = document.getElementById('qr-text');
-    const qrCodeContainer = document.getElementById('qr-code-container');
-    const downloadBtn = document.getElementById('download-btn');
-    const colorDarkInput = document.getElementById('color-dark');
-    const colorLightInput = document.getElementById('color-light');
-    const dotStyleSelect = document.getElementById('dot-style');
-    const expirationDateInput = document.getElementById('expiration-date');
-    const passwordInput = document.getElementById('qr-password');
-    const typeButtons = document.querySelectorAll('.type-btn');
-    const textInputSection = document.getElementById('text-input-section');
-    const vcardInputSection = document.getElementById('vcard-input-section');
-    const vcardInputs = document.querySelectorAll('.vcard-input');
+const qrContainer = document.getElementById("qr-code-container");
+const textInput = document.getElementById("qr-text");
+const colorDark = document.getElementById("color-dark");
+const colorLight = document.getElementById("color-light");
+const dotStyle = document.getElementById("dot-style");
+const customLogo = document.getElementById("custom-logo");
+const logoSize = document.getElementById("logo-size");
+const downloadBtn = document.getElementById("download-btn");
 
-    // --- State ---
-    let currentQrType = 'text'; // 'text' or 'vcard'
+let selectedLogo = "";
 
-    // --- QR Code Instance ---
-    const qrCode = new QRCodeStyling({
-        width: 250,
-        height: 250,
-        type: 'canvas', // ✅ MUST be canvas for PNG
-        data: 'https://www.google.com/',
+const qrCode = new QRCodeStyling({
+    width: 300,
+    height: 300,
+    data: "",
+    dotsOptions: {
+        color: colorDark.value,
+        type: dotStyle.value
+    },
+    backgroundOptions: {
+        color: colorLight.value
+    },
+    imageOptions: {
+        crossOrigin: "anonymous",
+        margin: 8
+    }
+});
+
+qrCode.append(qrContainer);
+
+function updateQR() {
+    qrCode.update({
+        data: textInput.value || " ",
         dotsOptions: {
-            color: colorDarkInput.value,
-            type: dotStyleSelect.value
+            color: colorDark.value,
+            type: dotStyle.value
         },
         backgroundOptions: {
-            color: colorLightInput.value
+            color: colorLight.value
         },
+        image: selectedLogo || undefined,
         imageOptions: {
-            crossOrigin: 'anonymous',
-            margin: 10
-        },
-        qrOptions: {
-            errorCorrectionLevel: 'H'
+            imageSize: parseFloat(logoSize.value),
+            margin: 8
         }
     });
+}
 
-    // Append QR
-    qrCode.append(qrCodeContainer);
+textInput.addEventListener("input", updateQR);
+colorDark.addEventListener("change", updateQR);
+colorLight.addEventListener("change", updateQR);
+dotStyle.addEventListener("change", updateQR);
+logoSize.addEventListener("input", updateQR);
 
-    // --- Event Listeners ---
-    textInput.addEventListener('input', updateQRCode);
-    colorDarkInput.addEventListener('input', updateQRCode);
-    colorLightInput.addEventListener('input', updateQRCode);
-    dotStyleSelect.addEventListener('change', updateQRCode);
-    vcardInputs.forEach(input => input.addEventListener('input', updateQRCode));
-
-    typeButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            typeButtons.forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
-
-            currentQrType = button.dataset.type;
-
-            if (currentQrType === 'text') {
-                textInputSection.classList.remove('hidden');
-                vcardInputSection.classList.add('hidden');
-            } else {
-                textInputSection.classList.add('hidden');
-                vcardInputSection.classList.remove('hidden');
-            }
-
-            updateQRCode();
-        });
+document.querySelectorAll(".logo-buttons button").forEach(btn => {
+    btn.addEventListener("click", () => {
+        selectedLogo = btn.dataset.logo;
+        updateQR();
     });
+});
 
-    expirationDateInput.addEventListener('change', () => {
-        const expirationDate = expirationDateInput.value;
-        if (expirationDate) {
-            alert(
-`--- Dynamic QR Code Simulation ---
+customLogo.addEventListener("change", e => {
+    const file = e.target.files[0];
+    if (!file) return;
 
-This QR code
+    const reader = new FileReader();
+    reader.onload = () => {
+        selectedLogo = reader.result;
+        updateQR();
+    };
+    reader.readAsDataURL(file);
+});
+
+downloadBtn.addEventListener("click", () => {
+    qrCode.download({ name: "qr-code", extension: "png" });
+});

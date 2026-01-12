@@ -7,54 +7,70 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <header>
-        <h1>QR Code Generator</h1>
-    </header>
 
-    <main>
-        <div class="container">
-            <p>Enter text or a URL to generate a QR code.</p>
-            <input type="text" id="qr-text" placeholder="e.g., https://www.google.com" autofocus>
+<header>
+    <h1>QR Code Generator</h1>
+</header>
 
-            <fieldset class="design-options">
-                <legend>Customize Design</legend>
-                <div class="option-group">
-                    <div class="option">
-                        <label for="color-dark">QR Color</label>
-                        <input type="color" id="color-dark" value="#00d9ff">
-                    </div>
-                    <div class="option">
-                        <label for="color-light">Background</label>
-                        <input type="color" id="color-light" value="#1e1e1e">
-                    </div>
-                </div>
-                <div class="option">
-                    <label for="dot-style">Dot Style</label>
-                    <select id="dot-style">
-                        <option value="square">Square</option>
-                        <option value="dots">Dots</option>
-                        <option value="rounded">Rounded</option>
-                        <option value="classy">Classy</option>
-                        <option value="classy-rounded">Classy Rounded</option>
-                        <option value="extra-rounded">Extra Rounded</option>
-                    </select>
-                </div>
-            </fieldset>
+<main>
+    <div class="container">
+        <p>Enter text or URL</p>
+        <input type="text" id="qr-text" placeholder="https://example.com">
 
-            <div id="qr-code-container">
-                <!-- QR Code will be generated here -->
+        <fieldset>
+            <legend>Customize QR</legend>
+
+            <div class="row">
+                <label>QR Color</label>
+                <input type="color" id="color-dark" value="#00d9ff">
             </div>
-            <a href="#" id="download-btn" class="btn" download="qrcode.png">Download PNG</a>
-        </div>
-    </main>
 
-    <footer>
-        <p>Copyright &copy; 2025 Priyanshu Goyal. I All rights reserved.</p>
-    </footer>
+            <div class="row">
+                <label>Background</label>
+                <input type="color" id="color-light" value="#1e1e1e">
+            </div>
 
-    <!-- QR Code Generation Library -->
-    <script src="https://cdn.jsdelivr.net/npm/qr-code-styling@1.6.0/lib/qr-code-styling.js"></script>
-    <!-- Custom Script -->
-    <script src="js/script.js" defer></script>
+            <div class="row">
+                <label>Dot Style</label>
+                <select id="dot-style">
+                    <option value="square">Square</option>
+                    <option value="dots">Dots</option>
+                    <option value="rounded">Rounded</option>
+                    <option value="classy">Classy</option>
+                    <option value="classy-rounded">Classy Rounded</option>
+                    <option value="extra-rounded">Extra Rounded</option>
+                </select>
+            </div>
+
+            <div class="row">
+                <label>Center Logo</label>
+                <div class="logo-buttons">
+                    <button data-logo="logos/whatsapp.png">WhatsApp</button>
+                    <button data-logo="logos/instagram.png">Instagram</button>
+                    <button data-logo="logos/youtube.png">YouTube</button>
+                    <button data-logo="">None</button>
+                </div>
+                <input type="file" id="custom-logo" accept="image/*">
+            </div>
+
+            <div class="row">
+                <label>Logo Size</label>
+                <input type="range" id="logo-size" min="0.1" max="0.4" step="0.05" value="0.25">
+            </div>
+        </fieldset>
+
+        <div id="qr-code-container"></div>
+
+        <button id="download-btn">Download PNG</button>
+    </div>
+</main>
+
+<footer>
+    <p>© 2025 Priyanshu Goyal</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/qr-code-styling@1.6.0/lib/qr-code-styling.js"></script>
+<script src="js/script.js"></script>
+
 </body>
 </html>
